@@ -97,6 +97,7 @@ int main() {
 
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	/*
 	1. Bind
 	2. Draw scene
@@ -104,6 +105,7 @@ int main() {
 	4. Use post processing on scene
 	5. Draw scene onto fullscreen quad
 	*/
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
@@ -114,10 +116,12 @@ int main() {
 		cameraController.move(window, &camera, deltaTime);
 		monkeyTransform.rotation = glm::rotate(monkeyTransform.rotation, deltaTime, glm::vec3(0.0, 1.0, 0.0));
 
+		// First pass to bind
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glViewport(0, 0, screenWidth, screenHeight);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// Draw scene
 		shader.use();
 		shader.setVec3("_EyePos", camera.position);
 		//shader.setInt("_MainTex", 0);
@@ -131,6 +135,7 @@ int main() {
 
 		monkeyModel.draw();
 
+		// Second pass to bind
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -142,7 +147,7 @@ int main() {
 		postProcessShader.setInt("effectOn", chromaticAberration.effectOn);
 
 
-		// Fullscreen Quad
+		// Draw to fullscreen Quad
 		glBindTextureUnit(0, colorBuffer);
 		glBindVertexArray(dummyVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
