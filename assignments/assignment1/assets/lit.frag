@@ -6,7 +6,7 @@ in Surface{
 	vec2 TexCoord;
 }fs_in;
 
-uniform sampler2D _MainTex; 
+//uniform sampler2D _MainTex; 
 uniform vec3 _EyePos;
 uniform vec3 _LightDirection = vec3(0.0,-1.0,0.0);
 uniform vec3 _LightColor = vec3(1.0);
@@ -34,6 +34,6 @@ void main(){
 	//Combination of specular and diffuse reflection
 	vec3 lightColor = (_Material.Kd * diffuseFactor + _Material.Ks * specularFactor) * _LightColor;
 	lightColor+=_AmbientColor * _Material.Ka;
-	vec3 objectColor = texture(_MainTex,fs_in.TexCoord).rgb;
-	FragColor = vec4(objectColor * lightColor,1.0);
+	//vec3 objectColor = texture(_MainTex,fs_in.TexCoord).rgb;
+	FragColor = vec4(lightColor,1.0);
 }

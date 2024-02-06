@@ -43,7 +43,7 @@ int main() {
 	ew::Shader shader = ew::Shader("assets/lit.vert", "assets/lit.frag");
 	ew::Shader postProcessShader = ew::Shader("assets/postprocessing.vert", "assets/postprocessing.frag");
 	ew::Model monkeyModel = ew::Model("assets/suzanne.obj");
-	GLuint brickTexture = ew::loadTexture("assets/brick_color.jpg");
+	//GLuint brickTexture = ew::loadTexture("assets/brick_color.jpg");
 
 	// Camera setup
 	camera.position = glm::vec3(0.0f, 0.0f, 5.0f);
@@ -62,7 +62,7 @@ int main() {
 	glBindTexture(GL_TEXTURE_2D, colorBuffer);
 	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA16, screenWidth, screenHeight);
 
-	//Attach color buffer to framebuffer
+	// Attach color buffer to framebuffer
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorBuffer, 0);
 
 	// Depth buffer
@@ -79,17 +79,7 @@ int main() {
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorBuffer, 0);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthBuffer, 0);
 
-	// Multiple Render Targets
-	/*
-	GLuint colorBuffers[2];
-	glGenTextures(2, colorBuffers);
-	for (unsigned int i = 0; i < 2; i++)
-	{
-		glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+i, GL_TEXTURE_2D, colorBuffers[i], 0);
-	}
-	*/
-
+	// Render multiple targets if needed
 	GLenum attachments[] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, attachments);
 
@@ -97,15 +87,14 @@ int main() {
 	glCullFace(GL_BACK); //Back face culling
 	glEnable(GL_DEPTH_TEST); //Depth testing
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	/*
 	1. Bind
 	2. Draw scene
 	3. Unbind
 	4. Use post processing on scene
-	5. Draw scene onto fullscreenquad
-	
+	5. Draw scene onto fullscreen quad
 	*/
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -114,7 +103,6 @@ int main() {
 		deltaTime = time - prevFrameTime;
 		prevFrameTime = time;
 
-		
 		cameraController.move(window, &camera, deltaTime);
 		monkeyTransform.rotation = glm::rotate(monkeyTransform.rotation, deltaTime, glm::vec3(0.0, 1.0, 0.0));
 
@@ -124,8 +112,8 @@ int main() {
 
 		shader.use();
 		shader.setVec3("_EyePos", camera.position);
-		shader.setInt("_MainTex", 0);
-		shader.setMat4("_Model", glm::mat4(1.0f));
+		//shader.setInt("_MainTex", 0);
+		shader.setMat4("_Model", monkeyTransform.modelMatrix());
 		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix());
 
 		//shader.setMat4("_Model", monkeyTransform.modelMatrix());
@@ -141,6 +129,9 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Post processing effect
+		postProcessShader.use();
+
+
 
 		// Fullscreen Quad
 		glBindTextureUnit(0, colorBuffer);
@@ -150,6 +141,7 @@ int main() {
 		drawUI();
 
 		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 
 	glDeleteFramebuffers(1, &fbo);
