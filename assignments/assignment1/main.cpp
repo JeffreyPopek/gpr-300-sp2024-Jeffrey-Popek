@@ -35,6 +35,14 @@ struct Material {
 	float Shininess = 128;
 }material;
 
+struct ChromaticAberration
+{
+	float r = 0.5;
+	float g = 0.5;
+	float b = 0.5;
+	int effectOn = 1;
+}chromaticAberration;
+
 int main() {
 	GLFWwindow* window = initWindow("Assignment 0", screenWidth, screenHeight);
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -116,8 +124,6 @@ int main() {
 		shader.setMat4("_Model", monkeyTransform.modelMatrix());
 		shader.setMat4("_ViewProjection", camera.projectionMatrix() * camera.viewMatrix());
 
-		//shader.setMat4("_Model", monkeyTransform.modelMatrix());
-
 		shader.setFloat("_Material.Ka", material.Ka);
 		shader.setFloat("_Material.Kd", material.Kd);
 		shader.setFloat("_Material.Ks", material.Ks);
@@ -130,7 +136,10 @@ int main() {
 
 		// Post processing effect
 		postProcessShader.use();
-
+		postProcessShader.setFloat("r", chromaticAberration.r);
+		postProcessShader.setFloat("g", chromaticAberration.g);
+		postProcessShader.setFloat("b", chromaticAberration.b);
+		postProcessShader.setInt("effectOn", chromaticAberration.effectOn);
 
 
 		// Fullscreen Quad
@@ -170,6 +179,14 @@ void drawUI() {
 		ImGui::SliderFloat("DiffuseK", &material.Kd, 0.0f, 1.0f);
 		ImGui::SliderFloat("SpecularK", &material.Ks, 0.0f, 1.0f);
 		ImGui::SliderFloat("Shininess", &material.Shininess, 2.0f, 1024.0f);
+	}
+
+	if (ImGui::CollapsingHeader("Chromatic Aberration")) {
+		ImGui::SliderFloat("R", &chromaticAberration.r, 0.0f, 1.0f);
+		ImGui::SliderFloat("G", &chromaticAberration.g, 0.0f, 1.0f);
+		ImGui::SliderFloat("B", &chromaticAberration.b, 0.0f, 1.0f);
+		ImGui::SliderInt("Toggle Effect", &chromaticAberration.effectOn, 0, 1);
+
 	}
 
 	ImGui::End();
