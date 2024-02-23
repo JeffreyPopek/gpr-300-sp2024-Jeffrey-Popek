@@ -16,6 +16,7 @@ out Surface{
 
 out vec4 LightSpacePos;
 
+
 void main()
 {
 	vs_out.WorldPos = vec3(_Model * vec4(vPos, 1.0));
